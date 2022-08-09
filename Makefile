@@ -1,38 +1,28 @@
 SUB = concord
-CC = gcc
+CC = cc
+CPPFLAGS += -Iinc -I$(SUB)/include -I$(SUB)/core -I$(SUB)/gencodecs
+CFLAGS ?= -O2 -g
+CFLAGS += -std=c99 -Wall -Wextra -Wpedantic -pthread
+LDFLAGS += -L$(SUB)/lib
+LDLIBS += -ldiscord -lcurl -pthread
+BOT = build/dc_bot
+SOURCES = src/dc_bot.c
 
-CORE_DIR      = $(SUB)/core
-INCLUDE_DIR   = $(SUB)/include
-GENCODECS_DIR = $(SUB)/gencodecs
-SRC           = src
-INC           = inc
+all: $(BOT)
 
-BOT   = dc_bot
-BOTS += $(SRC)/$(BOT)
+$(SUB)/lib/libdiscord.a:
+	$(MAKE) -C $(SUB) CC="$(CC)"
 
-CFLAGS  += -O0 -g -pthread -Wall \
-           -I$(INCLUDE_DIR) -I$(CORE_DIR) -I$(GENCODECS_DIR) -I$(INC)
-LDFLAGS  = -L$(SUB)/lib
-LDLIBS   = -ldiscord -lcurl
+$(BOT): $(SOURCES) inc/bot.h $(SUB)/lib/libdiscord.a | build
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(SOURCES) $(LDFLAGS) $(LDLIBS) -o $@
 
-all: build_sub $(BOTS) target run
+build:
+	mkdir -p $@
 
-build_sub:
-	$(MAKE) -C $(SUB)
-
-echo:
-	@ echo -e 'CC: $(CC)\n'
-	@ echo -e 'BOT: $(SRC)/$(BOT)\n'
-
-target:
-	@ mkdir -p build
-	@ mv $(SRC)/$(BOT) build
+run: $(BOT)
+	./$(BOT) $(CONFIG)
 
 clean:
-	@ rm -f $(SRC)/$(BOT)
+	rm -f $(BOT)
 
-run: all
-	@ echo -e 'Running $(BOT)...\n'
-	@ ./build/$(BOT)
-
-.PHONY: build_sub all echo clean
+.PHONY: all run clean
