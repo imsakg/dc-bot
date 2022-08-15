@@ -4,6 +4,7 @@
 #include "discord.h"
 #include "log.h"
 #include "bot.h"
+#include "bot_core.h"
 
 int main(int argc, char *argv[])
 {
@@ -48,7 +49,9 @@ void on_ping(struct discord *client, const struct discord_message *event)
     if (event->author->bot)
         return;
 
-    struct discord_create_message params = {.content = "pong"};
+    char reply[32];
+    bot_respond("ping", "", 0, reply, sizeof reply);
+    struct discord_create_message params = {.content = reply};
     discord_create_message(client, event->channel_id, &params, NULL);
 }
 
@@ -57,6 +60,8 @@ void on_pong(struct discord *client, const struct discord_message *event)
     if (event->author->bot)
         return;
 
-    struct discord_create_message params = {.content = "ping"};
+    char reply[32];
+    bot_respond("pong", "", 0, reply, sizeof reply);
+    struct discord_create_message params = {.content = reply};
     discord_create_message(client, event->channel_id, &params, NULL);
 }

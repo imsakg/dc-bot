@@ -6,7 +6,8 @@ CFLAGS += -std=c99 -Wall -Wextra -Wpedantic -pthread
 LDFLAGS += -L$(SUB)/lib
 LDLIBS += -ldiscord -lcurl -pthread
 BOT = build/dc_bot
-SOURCES = src/dc_bot.c
+SOURCES = src/dc_bot.c src/bot_core.c
+CORE = src/bot_core.c
 
 all: $(BOT)
 
@@ -25,4 +26,10 @@ run: $(BOT)
 clean:
 	rm -f $(BOT)
 
-.PHONY: all run clean
+build/test_core: tests/test_core.c $(CORE) inc/bot_core.h | build
+	$(CC) -Iinc $(CFLAGS) tests/test_core.c $(CORE) -o $@
+
+test: build/test_core
+	./build/test_core
+
+.PHONY: all run clean test
