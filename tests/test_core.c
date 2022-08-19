@@ -17,6 +17,12 @@ int main(void)
     expect("pong", "", 0, "ping");
     char out[32];
     assert(bot_respond("missing", "", 0, out, sizeof out) == BOT_IGNORED);
+    struct bot_input parsed;
+    assert(bot_parse("!ping hello", "!", &parsed));
+    assert(strcmp(parsed.name, "ping") == 0);
+    assert(strcmp(parsed.args, "hello") == 0);
+    assert(!bot_parse("ping", "!", &parsed));
+    assert(!bot_parse("!", "!", &parsed));
     /* more tests */
     puts("core: all assertions passed");
     return 0;
