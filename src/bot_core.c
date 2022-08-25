@@ -11,6 +11,7 @@ bool bot_parse(const char *message, const char *prefix, struct bot_input *out)
     message += prefix_len;
     while (message[n] && message[n] != ' ' && message[n] != '\t') {
         if (n + 1 >= sizeof out->name) return false;
+        if (message[n] < 'a' || message[n] > 'z') return false;
         out->name[n] = message[n];
         ++n;
     }
