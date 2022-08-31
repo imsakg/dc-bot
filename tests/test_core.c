@@ -30,6 +30,10 @@ int main(void)
     assert(!bot_parse("!PING", "!", &parsed));
     assert(bot_parse("!!echo\t hi", "!!", &parsed));
     assert(strcmp(parsed.args, "hi") == 0);
+    assert(bot_respond("help", "", 0, out, sizeof out) == BOT_REPLY);
+    assert(strstr(out, "ping") && strstr(out, "help"));
+    assert(bot_known_command("ping"));
+    assert(!bot_known_command("pin"));
     /* more tests */
     puts("core: all assertions passed");
     return 0;

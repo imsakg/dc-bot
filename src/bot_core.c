@@ -23,6 +23,22 @@ bool bot_parse(const char *message, const char *prefix, struct bot_input *out)
     return true;
 }
 
+bool bot_known_command(const char *name)
+{
+    const char *p = BOT_COMMANDS;
+    size_t n;
+    if (!name || !*name) return false;
+    n = strlen(name);
+    while (*p) {
+        const char *end = strchr(p, ' ');
+        size_t length = end ? (size_t)(end - p) : strlen(p);
+        if (length == n && strncmp(name, p, n) == 0) return true;
+        if (!end) break;
+        p = end + 1;
+    }
+    return false;
+}
+
 int bot_respond(const char *name, const char *args, unsigned random,
                 char *out, size_t capacity)
 {
@@ -31,6 +47,7 @@ int bot_respond(const char *name, const char *args, unsigned random,
     (void)random;
     if (!name || !out || capacity == 0) return BOT_ERROR;
     out[0] = '\0';
+    if (strcmp(name, "help") == 0) text = BOT_COMMANDS;
     /* command handlers */
     if (strcmp(name, "ping") == 0) text = "pong";
     if (strcmp(name, "pong") == 0) text = "ping";
