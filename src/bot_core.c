@@ -48,6 +48,7 @@ int bot_respond(const char *name, const char *args, unsigned random,
     if (!name || !out || capacity == 0) return BOT_ERROR;
     out[0] = '\0';
     if (strcmp(name, "help") == 0) text = BOT_COMMANDS;
+    if (strcmp(name, "about") == 0) text = "dc-bot " BOT_VERSION " | C + Concord";
     /* command handlers */
     if (strcmp(name, "ping") == 0) text = "pong";
     if (strcmp(name, "pong") == 0) text = "ping";

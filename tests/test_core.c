@@ -34,6 +34,7 @@ int main(void)
     assert(strstr(out, "ping") && strstr(out, "help"));
     assert(bot_known_command("ping"));
     assert(!bot_known_command("pin"));
+    expect("about", "", 0, "dc-bot " BOT_VERSION " | C + Concord");
     /* more tests */
     puts("core: all assertions passed");
     return 0;
