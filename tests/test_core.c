@@ -37,6 +37,14 @@ int main(void)
     expect("about", "", 0, "dc-bot " BOT_VERSION " | C + Concord");
     expect("echo", "hello C", 0, "hello C");
     expect("echo", "", 0, "Usage: echo <text>");
+    char tiny[4] = "xxx";
+    assert(bot_respond("ping", "", 0, tiny, sizeof tiny) == BOT_ERROR);
+    assert(tiny[0] == '\0');
+    char large[BOT_REPLY_MAX + 2];
+    memset(large, 'a', sizeof large - 1); large[sizeof large - 1] = '\0';
+    assert(bot_respond("echo", large, 0, out, sizeof out) == BOT_ERROR);
+    assert(out[0] == '\0');
+    expect("echo", "%s%n", 0, "%s%n");
     /* more tests */
     puts("core: all assertions passed");
     return 0;

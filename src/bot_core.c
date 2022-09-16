@@ -1,6 +1,22 @@
 #include "bot_core.h"
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
+
+int bot_format(char *out, size_t capacity, const char *format, ...)
+{
+    int n;
+    va_list args;
+    if (!out || !capacity || !format) return BOT_ERROR;
+    va_start(args, format);
+    n = vsnprintf(out, capacity, format, args);
+    va_end(args);
+    if (n < 0 || (size_t)n >= capacity || n > BOT_REPLY_MAX) {
+        out[0] = '\0';
+        return BOT_ERROR;
+    }
+    return BOT_REPLY;
+}
 
 bool bot_parse(const char *message, const char *prefix, struct bot_input *out)
 {
@@ -54,6 +70,5 @@ int bot_respond(const char *name, const char *args, unsigned random,
     if (strcmp(name, "ping") == 0) text = "pong";
     if (strcmp(name, "pong") == 0) text = "ping";
     if (!text) return BOT_IGNORED;
-    snprintf(out, capacity, "%s", text);
-    return BOT_REPLY;
+    return bot_format(out, capacity, "%s", text);
 }

@@ -9,6 +9,7 @@ bool bot_parse(const char *message, const char *prefix, struct bot_input *out);
 #define BOT_COMMANDS "ping pong help about echo"
 bool bot_known_command(const char *name);
 enum bot_result { BOT_ERROR = -1, BOT_IGNORED = 0, BOT_REPLY = 1 };
+int bot_format(char *out, size_t capacity, const char *format, ...);
 int bot_respond(const char *name, const char *args, unsigned random,
                 char *out, size_t capacity);
 #endif
