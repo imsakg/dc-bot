@@ -45,6 +45,9 @@ int main(void)
     assert(bot_respond("echo", large, 0, out, sizeof out) == BOT_ERROR);
     assert(out[0] == '\0');
     expect("echo", "%s%n", 0, "%s%n");
+    expect("upper", "aZ 19 %", 0, "AZ 19 %");
+    expect("upper", "café", 0, "CAFé");
+    expect("upper", "", 0, "Usage: upper <text>");
     /* more tests */
     puts("core: all assertions passed");
     return 0;
