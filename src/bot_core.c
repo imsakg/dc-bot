@@ -73,6 +73,13 @@ int bot_respond(const char *name, const char *args, unsigned random,
             if (out[i] >= 'a' && out[i] <= 'z') out[i] -= 'a' - 'A';
         return BOT_REPLY;
     }
+    if (strcmp(name, "lower") == 0) {
+        if (!args || !*args) return bot_format(out, capacity, "Usage: lower <text>");
+        if (bot_format(out, capacity, "%s", args) != BOT_REPLY) return BOT_ERROR;
+        for (size_t i = 0; out[i]; ++i)
+            if (out[i] >= 'A' && out[i] <= 'Z') out[i] += 'a' - 'A';
+        return BOT_REPLY;
+    }
     /* command handlers */
     if (strcmp(name, "ping") == 0) text = "pong";
     if (strcmp(name, "pong") == 0) text = "ping";

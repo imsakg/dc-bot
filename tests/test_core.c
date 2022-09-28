@@ -15,7 +15,7 @@ int main(void)
 {
     expect("ping", "", 0, "pong");
     expect("pong", "", 0, "ping");
-    char out[32];
+    char out[BOT_REPLY_MAX + 1];
     assert(bot_respond("missing", "", 0, out, sizeof out) == BOT_IGNORED);
     struct bot_input parsed;
     assert(bot_parse("!ping hello", "!", &parsed));
@@ -48,6 +48,8 @@ int main(void)
     expect("upper", "aZ 19 %", 0, "AZ 19 %");
     expect("upper", "café", 0, "CAFé");
     expect("upper", "", 0, "Usage: upper <text>");
+    expect("lower", "C Is FUN!", 0, "c is fun!");
+    expect("lower", "", 0, "Usage: lower <text>");
     /* more tests */
     puts("core: all assertions passed");
     return 0;
