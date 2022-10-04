@@ -80,6 +80,25 @@ int bot_respond(const char *name, const char *args, unsigned random,
             if (out[i] >= 'A' && out[i] <= 'Z') out[i] += 'a' - 'A';
         return BOT_REPLY;
     }
+    if (strcmp(name, "choose") == 0) {
+        const char *starts[16]; size_t lengths[16], count = 0;
+        const char *p = args ? args : "";
+        do {
+            const char *end = strchr(p, '|');
+            const char *last = end ? end : p + strlen(p);
+            while (p < last && (*p == ' ' || *p == '\t')) ++p;
+            while (last > p && (last[-1] == ' ' || last[-1] == '\t')) --last;
+            if (p == last || count == 16)
+                return bot_format(out, capacity, "Usage: choose <a> | <b> [| ...] (2-16 choices)");
+            starts[count] = p; lengths[count++] = (size_t)(last - p);
+            if (!end) break;
+            p = end + 1;
+        } while (1);
+        if (count < 2) return bot_format(out, capacity, "Usage: choose <a> | <b> [| ...] (2-16 choices)");
+        size_t pick = random % count;
+        if (lengths[pick] > BOT_REPLY_MAX) return BOT_ERROR;
+        return bot_format(out, capacity, "%.*s", (int)lengths[pick], starts[pick]);
+    }
     /* command handlers */
     if (strcmp(name, "ping") == 0) text = "pong";
     if (strcmp(name, "pong") == 0) text = "ping";

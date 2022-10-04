@@ -50,6 +50,10 @@ int main(void)
     expect("upper", "", 0, "Usage: upper <text>");
     expect("lower", "C Is FUN!", 0, "c is fun!");
     expect("lower", "", 0, "Usage: lower <text>");
+    expect("choose", "tea | coffee | water", 1, "coffee");
+    expect("choose", "tea | coffee", 2, "tea");
+    expect("choose", "tea || water", 0,
+           "Usage: choose <a> | <b> [| ...] (2-16 choices)");
     /* more tests */
     puts("core: all assertions passed");
     return 0;
