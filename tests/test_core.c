@@ -54,6 +54,10 @@ int main(void)
     expect("choose", "tea | coffee", 2, "tea");
     expect("choose", "tea || water", 0,
            "Usage: choose <a> | <b> [| ...] (2-16 choices)");
+    expect("roll", "", 5, "Rolled 6 (1-6)");
+    expect("roll", "20", 19, "Rolled 20 (1-20)");
+    expect("roll", "1", 0, "Usage: roll [sides: 2-1000000]");
+    expect("roll", "oops", 0, "Usage: roll [sides: 2-1000000]");
     /* more tests */
     puts("core: all assertions passed");
     return 0;

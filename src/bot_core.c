@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <stdlib.h>
 
 int bot_format(char *out, size_t capacity, const char *format, ...)
 {
@@ -98,6 +99,13 @@ int bot_respond(const char *name, const char *args, unsigned random,
         size_t pick = random % count;
         if (lengths[pick] > BOT_REPLY_MAX) return BOT_ERROR;
         return bot_format(out, capacity, "%.*s", (int)lengths[pick], starts[pick]);
+    }
+    if (strcmp(name, "roll") == 0) {
+        char *end = NULL;
+        unsigned long sides = args && *args ? strtoul(args, &end, 10) : 6;
+        if (sides < 2 || sides > 1000000 || (end && *end))
+            return bot_format(out, capacity, "Usage: roll [sides: 2-1000000]");
+        return bot_format(out, capacity, "Rolled %lu (1-%lu)", 1UL + random % sides, sides);
     }
     /* command handlers */
     if (strcmp(name, "ping") == 0) text = "pong";
