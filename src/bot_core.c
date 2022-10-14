@@ -107,6 +107,7 @@ int bot_respond(const char *name, const char *args, unsigned random,
             return bot_format(out, capacity, "Usage: roll [sides: 2-1000000]");
         return bot_format(out, capacity, "Rolled %lu (1-%lu)", 1UL + random % sides, sides);
     }
+    if (strcmp(name, "coin") == 0) text = random % 2 ? "tails" : "heads";
     /* command handlers */
     if (strcmp(name, "ping") == 0) text = "pong";
     if (strcmp(name, "pong") == 0) text = "ping";

@@ -58,6 +58,8 @@ int main(void)
     expect("roll", "20", 19, "Rolled 20 (1-20)");
     expect("roll", "1", 0, "Usage: roll [sides: 2-1000000]");
     expect("roll", "oops", 0, "Usage: roll [sides: 2-1000000]");
+    expect("coin", "", 0, "heads");
+    expect("coin", "", 3, "tails");
     /* more tests */
     puts("core: all assertions passed");
     return 0;
