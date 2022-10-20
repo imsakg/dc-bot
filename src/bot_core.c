@@ -108,6 +108,10 @@ int bot_respond(const char *name, const char *args, unsigned random,
         return bot_format(out, capacity, "Rolled %lu (1-%lu)", 1UL + random % sides, sides);
     }
     if (strcmp(name, "coin") == 0) text = random % 2 ? "tails" : "heads";
+    if (strcmp(name, "eightball") == 0) {
+        static const char *const answers[] = {"Yes.", "No.", "Maybe.", "Ask again later.", "It looks promising.", "Unlikely."};
+        text = !args || !*args ? "Usage: eightball <question>" : answers[random % 6];
+    }
     /* command handlers */
     if (strcmp(name, "ping") == 0) text = "pong";
     if (strcmp(name, "pong") == 0) text = "ping";

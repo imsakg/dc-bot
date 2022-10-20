@@ -60,6 +60,9 @@ int main(void)
     expect("roll", "oops", 0, "Usage: roll [sides: 2-1000000]");
     expect("coin", "", 0, "heads");
     expect("coin", "", 3, "tails");
+    expect("eightball", "Will it build?", 0, "Yes.");
+    expect("eightball", "", 0, "Usage: eightball <question>");
+    expect("eightball", "Will it build?", 7, "No.");
     /* more tests */
     puts("core: all assertions passed");
     return 0;
