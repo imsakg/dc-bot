@@ -63,6 +63,12 @@ int main(void)
     expect("eightball", "Will it build?", 0, "Yes.");
     expect("eightball", "", 0, "Usage: eightball <question>");
     expect("eightball", "Will it build?", 7, "No.");
+    unsigned long number = 123;
+    assert(bot_number("100", 2, 100, &number) && number == 100);
+    assert(!bot_number("+6", 2, 100, &number));
+    assert(!bot_number(" 6", 2, 100, &number));
+    assert(!bot_number("999999999999999999999999", 0, 100, &number));
+    expect("roll", "+6", 0, "Usage: roll [sides: 2-1000000]");
     /* more tests */
     puts("core: all assertions passed");
     return 0;

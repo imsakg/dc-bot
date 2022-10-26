@@ -4,6 +4,20 @@
 #include <string.h>
 #include <stdlib.h>
 
+bool bot_number(const char *text, unsigned long min, unsigned long max, unsigned long *out)
+{
+    unsigned long value = 0;
+    if (!text || !*text || !out || min > max) return false;
+    for (const unsigned char *p = (const unsigned char *)text; *p; ++p) {
+        unsigned digit = (unsigned)(*p - '0');
+        if (*p < '0' || *p > '9' || digit > max || value > (max - digit) / 10) return false;
+        value = value * 10 + digit;
+    }
+    if (value < min) return false;
+    *out = value;
+    return true;
+}
+
 int bot_format(char *out, size_t capacity, const char *format, ...)
 {
     int n;
@@ -101,9 +115,8 @@ int bot_respond(const char *name, const char *args, unsigned random,
         return bot_format(out, capacity, "%.*s", (int)lengths[pick], starts[pick]);
     }
     if (strcmp(name, "roll") == 0) {
-        char *end = NULL;
-        unsigned long sides = args && *args ? strtoul(args, &end, 10) : 6;
-        if (sides < 2 || sides > 1000000 || (end && *end))
+        unsigned long sides = 6;
+        if (args && *args && !bot_number(args, 2, 1000000, &sides))
             return bot_format(out, capacity, "Usage: roll [sides: 2-1000000]");
         return bot_format(out, capacity, "Rolled %lu (1-%lu)", 1UL + random % sides, sides);
     }
