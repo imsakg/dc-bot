@@ -4,6 +4,20 @@
 #include <string.h>
 #include <stdlib.h>
 
+bool bot_id(const char *text, uint64_t *out)
+{
+    uint64_t value = 0;
+    if (!text || !*text || !out) return false;
+    for (const unsigned char *p = (const unsigned char *)text; *p; ++p) {
+        unsigned digit = (unsigned)(*p - '0');
+        if (*p < '0' || *p > '9' || value > (UINT64_MAX - digit) / 10) return false;
+        value = value * 10 + digit;
+    }
+    if (!value) return false;
+    *out = value;
+    return true;
+}
+
 bool bot_number(const char *text, unsigned long min, unsigned long max, unsigned long *out)
 {
     unsigned long value = 0;
@@ -124,6 +138,12 @@ int bot_respond(const char *name, const char *args, unsigned random,
     if (strcmp(name, "eightball") == 0) {
         static const char *const answers[] = {"Yes.", "No.", "Maybe.", "Ask again later.", "It looks promising.", "Unlikely."};
         text = !args || !*args ? "Usage: eightball <question>" : answers[random % 6];
+    }
+    if (strcmp(name, "snowflake") == 0) {
+        uint64_t id;
+        if (!bot_id(args, &id)) return bot_format(out, capacity, "Usage: snowflake <positive Discord ID>");
+        return bot_format(out, capacity, "<t:%llu:f>",
+            (unsigned long long)(((id >> 22) + UINT64_C(1420070400000)) / 1000));
     }
     /* command handlers */
     if (strcmp(name, "ping") == 0) text = "pong";

@@ -69,6 +69,12 @@ int main(void)
     assert(!bot_number(" 6", 2, 100, &number));
     assert(!bot_number("999999999999999999999999", 0, 100, &number));
     expect("roll", "+6", 0, "Usage: roll [sides: 2-1000000]");
+    uint64_t snowflake = 0;
+    assert(bot_id("175928847299117063", &snowflake));
+    assert(snowflake == UINT64_C(175928847299117063));
+    assert(!bot_id("0", &snowflake));
+    assert(!bot_id("18446744073709551616", &snowflake));
+    expect("snowflake", "175928847299117063", 0, "<t:1462015105:f>");
     /* more tests */
     puts("core: all assertions passed");
     return 0;
