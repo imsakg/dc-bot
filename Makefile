@@ -29,7 +29,11 @@ clean:
 build/test_core: tests/test_core.c $(CORE) inc/bot_core.h | build
 	$(CC) -Iinc $(CFLAGS) tests/test_core.c $(CORE) -o $@
 
-test: build/test_core
+build/test_config: tests/test_config.c src/bot_config.c $(CORE) inc/bot_config.h inc/bot_core.h | build
+	$(CC) -Iinc $(CFLAGS) tests/test_config.c src/bot_config.c $(CORE) -o $@
+
+test: build/test_core build/test_config
 	./build/test_core
+	./build/test_config
 
 .PHONY: all run clean test
