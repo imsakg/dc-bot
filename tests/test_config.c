@@ -24,6 +24,11 @@ int main(void)
     assert(strcmp(config.prefix, "!!") == 0);
     assert(load_text(&config, "prefix=\n") != 0);
     assert(load_text(&config, "prefix=123456789\n") != 0);
+    strcpy(config.prefix, "!");
+    assert(load_text(&config, "prefix=?\nunknown=yes\n") != 0);
+    assert(strcmp(config.prefix, "!") == 0);
+    assert(load_text(&config, "prefix=?\nprefix=!!\n") != 0);
+    assert(strcmp(config.prefix, "!") == 0);
     /* config tests */
     puts("config: all assertions passed");
     return 0;

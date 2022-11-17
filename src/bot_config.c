@@ -19,6 +19,8 @@ int bot_config_read(struct bot_config *config, FILE *stream, char *error, size_t
 {
     char line[256]; unsigned number = 0;
     if (!config || !stream) return config_error(error, capacity, 0);
+    struct bot_config next = *config;
+    unsigned seen = 0;
     if (error && capacity) *error = '\0';
     while (fgets(line, sizeof line, stream)) {
         ++number;
@@ -30,15 +32,18 @@ int bot_config_read(struct bot_config *config, FILE *stream, char *error, size_t
         *equals = '\0'; key = trim(key);
         char *value = trim(equals + 1);
         if (strcmp(key, "prefix") == 0) {
+            if (seen & 1U) return config_error(error, capacity, number);
+            seen |= 1U;
             size_t n = strlen(value);
-            if (!n || n >= sizeof config->prefix) return config_error(error, capacity, number);
+            if (!n || n >= sizeof next.prefix) return config_error(error, capacity, number);
             for (size_t i = 0; i < n; ++i)
                 if ((unsigned char)value[i] <= 32 || (unsigned char)value[i] > 126)
                     return config_error(error, capacity, number);
-            memcpy(config->prefix, value, n + 1);
+            memcpy(next.prefix, value, n + 1);
         } else return config_error(error, capacity, number);
     }
     if (ferror(stream)) return config_error(error, capacity, number);
+    *config = next;
     return 0;
 }
 
