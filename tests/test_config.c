@@ -29,6 +29,11 @@ int main(void)
     assert(strcmp(config.prefix, "!") == 0);
     assert(load_text(&config, "prefix=?\nprefix=!!\n") != 0);
     assert(strcmp(config.prefix, "!") == 0);
+    assert(load_text(&config, "welcome_guild=123\nwelcome_channel=456\n") == 0);
+    assert(config.welcome_guild == 123 && config.welcome_channel == 456);
+    assert(load_text(&config, "welcome_guild=0\nwelcome_channel=0\n") == 0);
+    assert(load_text(&config, "welcome_guild=123\n") != 0);
+    assert(load_text(&config, "welcome_guild=-1\n") != 0);
     /* config tests */
     puts("config: all assertions passed");
     return 0;

@@ -1,4 +1,5 @@
 #include "bot_config.h"
+#include "bot_core.h"
 #include <string.h>
 #include <ctype.h>
 static int config_error(char *error, size_t capacity, unsigned line)
@@ -40,9 +41,18 @@ int bot_config_read(struct bot_config *config, FILE *stream, char *error, size_t
                 if ((unsigned char)value[i] <= 32 || (unsigned char)value[i] > 126)
                     return config_error(error, capacity, number);
             memcpy(next.prefix, value, n + 1);
+        } else if (strcmp(key, "welcome_guild") == 0 || strcmp(key, "welcome_channel") == 0) {
+            unsigned flag = strcmp(key, "welcome_guild") == 0 ? 2U : 4U;
+            uint64_t id = 0;
+            if ((seen & flag) || (strcmp(value, "0") != 0 && !bot_id(value, &id)))
+                return config_error(error, capacity, number);
+            seen |= flag;
+            if (flag == 2U) next.welcome_guild = id;
+            else next.welcome_channel = id;
         } else return config_error(error, capacity, number);
     }
     if (ferror(stream)) return config_error(error, capacity, number);
+    if ((!next.welcome_guild) != (!next.welcome_channel)) return config_error(error, capacity, number);
     *config = next;
     return 0;
 }
