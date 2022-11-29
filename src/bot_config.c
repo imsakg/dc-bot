@@ -41,6 +41,12 @@ int bot_config_read(struct bot_config *config, FILE *stream, char *error, size_t
                 if ((unsigned char)value[i] <= 32 || (unsigned char)value[i] > 126)
                     return config_error(error, capacity, number);
             memcpy(next.prefix, value, n + 1);
+        } else if (strcmp(key, "cooldown_seconds") == 0) {
+            unsigned long seconds;
+            if ((seen & 8U) || !bot_number(value, 0, 3600, &seconds))
+                return config_error(error, capacity, number);
+            seen |= 8U;
+            next.cooldown_seconds = (unsigned)seconds;
         } else if (strcmp(key, "welcome_guild") == 0 || strcmp(key, "welcome_channel") == 0) {
             unsigned flag = strcmp(key, "welcome_guild") == 0 ? 2U : 4U;
             uint64_t id = 0;

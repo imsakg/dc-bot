@@ -34,6 +34,11 @@ int main(void)
     assert(load_text(&config, "welcome_guild=0\nwelcome_channel=0\n") == 0);
     assert(load_text(&config, "welcome_guild=123\n") != 0);
     assert(load_text(&config, "welcome_guild=-1\n") != 0);
+    assert(load_text(&config, "cooldown_seconds=0\n") == 0 && config.cooldown_seconds == 0);
+    assert(load_text(&config, "cooldown_seconds=3600\n") == 0 && config.cooldown_seconds == 3600);
+    assert(load_text(&config, "cooldown_seconds=3601\n") != 0);
+    assert(load_text(&config, "cooldown_seconds=-2\n") != 0);
+    assert(load_text(&config, "cooldown_seconds=1\ncooldown_seconds=2\n") != 0);
     /* config tests */
     puts("config: all assertions passed");
     return 0;
