@@ -14,8 +14,13 @@ int main(int argc, char *argv[])
     else
         config_file = "config.json";
 
+    const char *token = getenv("DISCORD_TOKEN");
+    if (token && !bot_token_valid(token)) {
+        fputs("DISCORD_TOKEN is empty, a placeholder or contains invalid characters.\n", stderr);
+        return EXIT_FAILURE;
+    }
     ccord_global_init();
-    struct discord *client = discord_config_init(config_file);
+    struct discord *client = token ? discord_init(token) : discord_config_init(config_file);
 
     discord_set_on_ready(client, &on_ready);
     discord_set_on_command(client, "ping", &on_ping);

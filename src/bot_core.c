@@ -4,6 +4,18 @@
 #include <string.h>
 #include <stdlib.h>
 
+bool bot_token_valid(const char *token)
+{
+    size_t n;
+    if (!token || !(n = strlen(token)) || n > 4094 || strcmp(token, "YOUR-BOT-TOKEN") == 0) return false;
+    for (size_t i = 0; i < n; ++i) {
+        unsigned char c = (unsigned char)token[i];
+        if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+              (c >= '0' && c <= '9') || c == '.' || c == '_' || c == '-')) return false;
+    }
+    return true;
+}
+
 bool bot_id(const char *text, uint64_t *out)
 {
     uint64_t value = 0;

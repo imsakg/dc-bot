@@ -75,6 +75,11 @@ int main(void)
     assert(!bot_id("0", &snowflake));
     assert(!bot_id("18446744073709551616", &snowflake));
     expect("snowflake", "175928847299117063", 0, "<t:1462015105:f>");
+    assert(bot_token_valid("abc.DEF-123_xyz"));
+    assert(!bot_token_valid(""));
+    assert(!bot_token_valid("YOUR-BOT-TOKEN"));
+    assert(!bot_token_valid("token with spaces"));
+    assert(!bot_token_valid("${HOME}"));
     /* more tests */
     puts("core: all assertions passed");
     return 0;

@@ -10,6 +10,7 @@ bool bot_parse(const char *message, const char *prefix, struct bot_input *out);
 #define BOT_COMMANDS "ping pong help about echo upper lower choose roll coin eightball snowflake"
 bool bot_known_command(const char *name);
 enum bot_result { BOT_ERROR = -1, BOT_IGNORED = 0, BOT_REPLY = 1 };
+bool bot_token_valid(const char *token);
 bool bot_id(const char *text, uint64_t *out);
 bool bot_number(const char *text, unsigned long min, unsigned long max, unsigned long *out);
 int bot_format(char *out, size_t capacity, const char *format, ...);
