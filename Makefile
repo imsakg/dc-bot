@@ -6,7 +6,7 @@ CFLAGS += -std=c99 -Wall -Wextra -Wpedantic -pthread
 LDFLAGS += -L$(SUB)/lib
 LDLIBS += -ldiscord -lcurl -pthread
 BOT = build/dc_bot
-SOURCES = src/dc_bot.c src/bot_core.c
+SOURCES = src/dc_bot.c src/bot_core.c src/bot_config.c
 CORE = src/bot_core.c
 
 all: $(BOT)
@@ -36,4 +36,7 @@ test: build/test_core build/test_config
 	./build/test_core
 	./build/test_config
 
-.PHONY: all run clean test
+check: all test
+	python3 tests/test_cli.py
+
+.PHONY: all run clean test check

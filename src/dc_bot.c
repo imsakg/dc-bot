@@ -1,18 +1,39 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "discord.h"
 #include "log.h"
 #include "bot.h"
 #include "bot_core.h"
+#include "bot_config.h"
 
 int main(int argc, char *argv[])
 {
-    const char *config_file;
-    if (argc > 1)
-        config_file = argv[1];
-    else
-        config_file = "config.json";
+    const char *config_file = "config.json", *settings_file = NULL;
+    bool check_only = false, positional = false;
+    struct bot_config settings;
+    char error[128];
+    bot_config_defaults(&settings);
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--help") == 0) { print_usage(); return EXIT_SUCCESS; }
+        if (strcmp(argv[i], "--version") == 0) { puts("dc-bot " BOT_VERSION); return EXIT_SUCCESS; }
+        if (strcmp(argv[i], "--check-config") == 0) { check_only = true; continue; }
+        if (strcmp(argv[i], "--settings") == 0 || strcmp(argv[i], "--config") == 0) {
+            bool is_settings = strcmp(argv[i], "--settings") == 0;
+            if (++i == argc) { fputs("Missing option value.\n", stderr); return EXIT_FAILURE; }
+            if (is_settings) settings_file = argv[i]; else config_file = argv[i];
+        } else if (argv[i][0] != '-' && !positional) {
+            config_file = argv[i]; positional = true;
+        } else { fputs("Unknown option or extra argument.\n", stderr); return EXIT_FAILURE; }
+    }
+    if (settings_file && bot_config_load(&settings, settings_file, error, sizeof error) != 0) {
+        fprintf(stderr, "%s\n", error); return EXIT_FAILURE;
+    }
+    if (check_only) {
+        printf("Settings valid: prefix=%s cooldown_seconds=%u\n", settings.prefix, settings.cooldown_seconds);
+        return EXIT_SUCCESS;
+    }
 
     const char *token = getenv("DISCORD_TOKEN");
     if (token && !bot_token_valid(token)) {
@@ -37,10 +58,9 @@ int main(int argc, char *argv[])
 
 void print_usage(void)
 {
-    printf("\n\nThis bot demonstrates a simple ping-pong response.\n"
-           "1. Type 'pong' in chat\n"
-           "2. Type 'ping' in chat\n"
-           "\nTYPE ANY KEY TO START BOT\n");
+    puts("Usage: dc_bot [--config config.json] [--settings bot.conf] [--check-config]\n"
+         "       dc_bot --help | --version\n"
+         "DISCORD_TOKEN overrides the Concord JSON credential file.");
 }
 
 void on_ready(struct discord *client, const struct discord_ready *event)
