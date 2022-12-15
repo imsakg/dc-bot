@@ -17,6 +17,7 @@ assert run("--help").returncode == 0
 assert "Usage:" in run("--help").stdout
 assert run("--version").stdout.strip() == "dc-bot 0.2.0"
 assert run("--unknown").returncode != 0
+assert run("--config", "/nonexistent-dc-bot-file").returncode == 1
 assert run("--check-config").returncode == 0
 with tempfile.TemporaryDirectory(dir=os.environ.get("TMPDIR")) as directory:
     settings = Path(directory) / "bot.conf"

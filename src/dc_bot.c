@@ -40,20 +40,28 @@ int main(int argc, char *argv[])
         fputs("DISCORD_TOKEN is empty, a placeholder or contains invalid characters.\n", stderr);
         return EXIT_FAILURE;
     }
-    ccord_global_init();
+    if (!token) {
+        FILE *probe = fopen(config_file, "r");
+        if (!probe) { fputs("Cannot read the Concord config file; set DISCORD_TOKEN or --config.\n", stderr); return EXIT_FAILURE; }
+        fclose(probe);
+    }
+    if (ccord_global_init() != CCORD_OK) {
+        fputs("Concord global initialization failed.\n", stderr); return EXIT_FAILURE;
+    }
     struct discord *client = token ? discord_init(token) : discord_config_init(config_file);
+    if (!client) {
+        fputs("Discord client initialization failed.\n", stderr);
+        ccord_global_cleanup(); return EXIT_FAILURE;
+    }
 
     discord_set_on_ready(client, &on_ready);
     discord_set_on_command(client, "ping", &on_ping);
     discord_set_on_command(client, "pong", &on_pong);
 
-    print_usage();
-    fgetc(stdin); // wait for input
-
-    discord_run(client);
-
+    CCORDcode result = discord_run(client);
     discord_cleanup(client);
     ccord_global_cleanup();
+    return result == CCORD_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 void print_usage(void)
