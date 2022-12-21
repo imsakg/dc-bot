@@ -6,7 +6,7 @@ CFLAGS += -std=c99 -Wall -Wextra -Wpedantic -pthread
 LDFLAGS += -L$(SUB)/lib
 LDLIBS += -ldiscord -lcurl -pthread
 BOT = build/dc_bot
-SOURCES = src/dc_bot.c src/bot_core.c src/bot_config.c
+SOURCES = src/dc_bot.c src/bot_core.c src/bot_config.c src/events.c
 CORE = src/bot_core.c
 
 all: $(BOT)
@@ -32,9 +32,13 @@ build/test_core: tests/test_core.c $(CORE) inc/bot_core.h | build
 build/test_config: tests/test_config.c src/bot_config.c $(CORE) inc/bot_config.h inc/bot_core.h | build
 	$(CC) -Iinc $(CFLAGS) tests/test_config.c src/bot_config.c $(CORE) -o $@
 
-test: build/test_core build/test_config
+build/test_events: tests/test_events.c src/events.c src/bot_config.c $(CORE) inc/bot.h | build
+	$(CC) $(CPPFLAGS) $(CFLAGS) tests/test_events.c src/events.c src/bot_config.c $(CORE) -o $@
+
+test: build/test_core build/test_config build/test_events
 	./build/test_core
 	./build/test_config
+	./build/test_events
 
 check: all test
 	python3 tests/test_cli.py

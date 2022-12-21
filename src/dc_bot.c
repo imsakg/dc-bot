@@ -54,12 +54,20 @@ int main(int argc, char *argv[])
         ccord_global_cleanup(); return EXIT_FAILURE;
     }
 
+    struct bot_state state = {.config = settings, .started = time(NULL)};
+    if (pthread_mutex_init(&state.mutex, NULL) != 0) {
+        discord_cleanup(client); ccord_global_cleanup(); return EXIT_FAILURE;
+    }
+    srand((unsigned)state.started);
+    discord_set_data(client, &state);
+    discord_add_intents(client, DISCORD_GATEWAY_GUILDS | DISCORD_GATEWAY_GUILD_MESSAGES |
+        DISCORD_GATEWAY_DIRECT_MESSAGES | DISCORD_GATEWAY_MESSAGE_CONTENT);
     discord_set_on_ready(client, &on_ready);
-    discord_set_on_command(client, "ping", &on_ping);
-    discord_set_on_command(client, "pong", &on_pong);
+    discord_set_on_message_create(client, &on_message);
 
     CCORDcode result = discord_run(client);
     discord_cleanup(client);
+    pthread_mutex_destroy(&state.mutex);
     ccord_global_cleanup();
     return result == CCORD_OK ? EXIT_SUCCESS : EXIT_FAILURE;
 }
@@ -71,30 +79,4 @@ void print_usage(void)
          "DISCORD_TOKEN overrides the Concord JSON credential file.");
 }
 
-void on_ready(struct discord *client, const struct discord_ready *event)
-{
-    log_info("PingPong-Bot succesfully connected to Discord as %s#%s!",
-             event->user->username, event->user->discriminator);
-}
 
-void on_ping(struct discord *client, const struct discord_message *event)
-{
-    if (event->author->bot)
-        return;
-
-    char reply[32];
-    bot_respond("ping", "", 0, reply, sizeof reply);
-    struct discord_create_message params = {.content = reply};
-    discord_create_message(client, event->channel_id, &params, NULL);
-}
-
-void on_pong(struct discord *client, const struct discord_message *event)
-{
-    if (event->author->bot)
-        return;
-
-    char reply[32];
-    bot_respond("pong", "", 0, reply, sizeof reply);
-    struct discord_create_message params = {.content = reply};
-    discord_create_message(client, event->channel_id, &params, NULL);
-}
