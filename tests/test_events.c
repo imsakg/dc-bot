@@ -36,6 +36,15 @@ int main(void)
     on_message(client, &event); assert(sent == 1 && strcmp(last, "pong") == 0);
     event.content = "hello"; on_message(client, &event); assert(sent == 1);
     event.content = "!echo hi"; on_message(client, &event); assert(sent == 2 && strcmp(last, "hi") == 0);
+    struct discord_ready ready = {.user = &user};
+    on_ready(client, NULL); assert(state.ready_count == 0);
+    on_ready(client, &ready); on_ready(client, &ready);
+    assert(state.ready_count == 2);
+    assert(state.messages == 3 && state.replies == 2);
+    send_result = CCORD_UNAVAILABLE;
+    bot_send_reply(client, 9, "test");
+    assert(state.replies == 2);
+    send_result = CCORD_OK;
     /* event tests */
     pthread_mutex_destroy(&state.mutex);
     puts("events: all assertions passed");
