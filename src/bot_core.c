@@ -4,6 +4,13 @@
 #include <string.h>
 #include <stdlib.h>
 
+int bot_uptime(uint64_t seconds, char *out, size_t capacity)
+{
+    return bot_format(out, capacity, "Uptime: %llud %lluh %llum %llus",
+        (unsigned long long)(seconds / 86400), (unsigned long long)(seconds / 3600 % 24),
+        (unsigned long long)(seconds / 60 % 60), (unsigned long long)(seconds % 60));
+}
+
 bool bot_token_valid(const char *token)
 {
     size_t n;

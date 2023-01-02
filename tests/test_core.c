@@ -80,6 +80,10 @@ int main(void)
     assert(!bot_token_valid("YOUR-BOT-TOKEN"));
     assert(!bot_token_valid("token with spaces"));
     assert(!bot_token_valid("${HOME}"));
+    assert(bot_uptime(90061, out, sizeof out) == BOT_REPLY);
+    assert(strcmp(out, "Uptime: 1d 1h 1m 1s") == 0);
+    assert(bot_uptime(0, out, sizeof out) == BOT_REPLY);
+    assert(strcmp(out, "Uptime: 0d 0h 0m 0s") == 0);
     /* more tests */
     puts("core: all assertions passed");
     return 0;
