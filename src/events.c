@@ -36,6 +36,13 @@ void on_message(struct discord *client, const struct discord_message *event)
     if (!state) return;
     ++state->messages;
     if (!bot_parse(event->content, state->config.prefix, &input)) return;
+    if (strcmp(input.name, "stats") == 0) {
+        if (bot_format(reply, sizeof reply, "Messages: %lu | Replies queued: %lu | Ready events: %lu",
+            state->messages, state->replies, state->ready_count) == BOT_REPLY)
+            bot_send_reply(client, event->channel_id, reply);
+        return;
+    }
+    /* context handlers */
     if (strcmp(input.name, "uptime") == 0) {
         time_t now = time(NULL);
         uint64_t elapsed = now > state->started ? (uint64_t)(now - state->started) : 0;

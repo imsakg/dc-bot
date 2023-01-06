@@ -45,6 +45,9 @@ int main(void)
     bot_send_reply(client, 9, "test");
     assert(state.replies == 2);
     send_result = CCORD_OK;
+    event.content = "!stats";
+    on_message(client, &event);
+    assert(strstr(last, "Replies queued:") && strstr(last, "Ready events: 2"));
     /* event tests */
     pthread_mutex_destroy(&state.mutex);
     puts("events: all assertions passed");
