@@ -48,6 +48,9 @@ int main(void)
     event.content = "!stats";
     on_message(client, &event);
     assert(strstr(last, "Replies queued:") && strstr(last, "Ready events: 2"));
+    event.content = "!userinfo";
+    on_message(client, &event);
+    assert(strcmp(last, "User: tester | ID: 42") == 0);
     /* event tests */
     pthread_mutex_destroy(&state.mutex);
     puts("events: all assertions passed");

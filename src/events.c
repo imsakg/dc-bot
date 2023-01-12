@@ -42,6 +42,13 @@ void on_message(struct discord *client, const struct discord_message *event)
             bot_send_reply(client, event->channel_id, reply);
         return;
     }
+    if (strcmp(input.name, "userinfo") == 0) {
+        if (bot_format(reply, sizeof reply, "User: %s | ID: %llu",
+            event->author->username ? event->author->username : "unknown",
+            (unsigned long long)event->author->id) == BOT_REPLY)
+            bot_send_reply(client, event->channel_id, reply);
+        return;
+    }
     /* context handlers */
     if (strcmp(input.name, "uptime") == 0) {
         time_t now = time(NULL);
