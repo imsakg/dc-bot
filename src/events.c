@@ -49,6 +49,14 @@ void on_message(struct discord *client, const struct discord_message *event)
             bot_send_reply(client, event->channel_id, reply);
         return;
     }
+    if (strcmp(input.name, "serverinfo") == 0) {
+        int result = event->guild_id ?
+            bot_format(reply, sizeof reply, "Guild ID: %llu | Channel ID: %llu",
+                (unsigned long long)event->guild_id, (unsigned long long)event->channel_id) :
+            bot_format(reply, sizeof reply, "This command is only available in a server.");
+        if (result == BOT_REPLY) bot_send_reply(client, event->channel_id, reply);
+        return;
+    }
     /* context handlers */
     if (strcmp(input.name, "uptime") == 0) {
         time_t now = time(NULL);

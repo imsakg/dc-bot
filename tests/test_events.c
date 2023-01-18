@@ -51,6 +51,12 @@ int main(void)
     event.content = "!userinfo";
     on_message(client, &event);
     assert(strcmp(last, "User: tester | ID: 42") == 0);
+    event.content = "!serverinfo";
+    on_message(client, &event);
+    assert(strcmp(last, "This command is only available in a server.") == 0);
+    event.guild_id = 123; on_message(client, &event);
+    assert(strcmp(last, "Guild ID: 123 | Channel ID: 9") == 0);
+    event.guild_id = 0;
     /* event tests */
     pthread_mutex_destroy(&state.mutex);
     puts("events: all assertions passed");
