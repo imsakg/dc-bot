@@ -84,6 +84,11 @@ int main(void)
     assert(strcmp(out, "Uptime: 1d 1h 1m 1s") == 0);
     assert(bot_uptime(0, out, sizeof out) == BOT_REPLY);
     assert(strcmp(out, "Uptime: 0d 0h 0m 0s") == 0);
+    assert(bot_avatar(42, NULL, "0001", out, sizeof out) == BOT_REPLY);
+    assert(strcmp(out, "https://cdn.discordapp.com/embed/avatars/1.png") == 0);
+    assert(bot_avatar(42, "a_deadbeef", "0", out, sizeof out) == BOT_REPLY);
+    assert(strcmp(out, "https://cdn.discordapp.com/avatars/42/a_deadbeef.gif?size=256") == 0);
+    assert(bot_avatar(42, "../../evil", "0", out, sizeof out) == BOT_ERROR);
     /* more tests */
     puts("core: all assertions passed");
     return 0;

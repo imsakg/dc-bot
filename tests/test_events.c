@@ -57,6 +57,8 @@ int main(void)
     event.guild_id = 123; on_message(client, &event);
     assert(strcmp(last, "Guild ID: 123 | Channel ID: 9") == 0);
     event.guild_id = 0;
+    event.content = "!avatar"; on_message(client, &event);
+    assert(strcmp(last, "https://cdn.discordapp.com/embed/avatars/1.png") == 0);
     /* event tests */
     pthread_mutex_destroy(&state.mutex);
     puts("events: all assertions passed");

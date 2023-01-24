@@ -4,6 +4,27 @@
 #include <string.h>
 #include <stdlib.h>
 
+int bot_avatar(uint64_t id, const char *avatar, const char *discriminator, char *out, size_t capacity)
+{
+    if (!id) return BOT_ERROR;
+    if (!avatar || !*avatar) {
+        unsigned long legacy = 0;
+        bool old = bot_number(discriminator, 1, 9999, &legacy);
+        unsigned index = old ? (unsigned)(legacy % 5) : (unsigned)((id >> 22) % 6);
+        return bot_format(out, capacity, "https://cdn.discordapp.com/embed/avatars/%u.png", index);
+    }
+    bool animated = strncmp(avatar, "a_", 2) == 0;
+    const char *hash = avatar + (animated ? 2 : 0);
+    size_t n = strlen(hash);
+    if (!n || n > 64) return BOT_ERROR;
+    for (size_t i = 0; i < n; ++i) {
+        char c = hash[i];
+        if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) return BOT_ERROR;
+    }
+    return bot_format(out, capacity, "https://cdn.discordapp.com/avatars/%llu/%s.%s?size=256",
+        (unsigned long long)id, avatar, animated ? "gif" : "png");
+}
+
 int bot_uptime(uint64_t seconds, char *out, size_t capacity)
 {
     return bot_format(out, capacity, "Uptime: %llud %lluh %llum %llus",
