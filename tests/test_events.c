@@ -59,6 +59,14 @@ int main(void)
     event.guild_id = 0;
     event.content = "!avatar"; on_message(client, &event);
     assert(strcmp(last, "https://cdn.discordapp.com/embed/avatars/1.png") == 0);
+    struct discord_guild_member member = {.user = &user, .guild_id = 123};
+    unsigned before_join = sent;
+    on_member_add(client, &member); assert(sent == before_join);
+    state.config.welcome_guild = 123; state.config.welcome_channel = 9;
+    on_member_add(client, &member); assert(sent == before_join + 1);
+    assert(strcmp(last, "Welcome, tester!") == 0);
+    member.guild_id = 999; on_member_add(client, &member); assert(sent == before_join + 1);
+    member.guild_id = 123;
     /* event tests */
     pthread_mutex_destroy(&state.mutex);
     puts("events: all assertions passed");

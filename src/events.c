@@ -27,6 +27,16 @@ void on_ready(struct discord *client, const struct discord_ready *event)
     fprintf(stderr, "dc-bot connected as %s\n", event->user->username ? event->user->username : "unknown");
 }
 
+void on_member_add(struct discord *client, const struct discord_guild_member *event)
+{
+    if (!client || !event || !event->user || event->user->bot) return;
+    struct bot_state *state = discord_get_data(client);
+    char reply[BOT_REPLY_MAX + 1];
+    if (!state || !state->config.welcome_channel || event->guild_id != state->config.welcome_guild) return;
+    if (bot_format(reply, sizeof reply, "Welcome, %s!", event->user->username ? event->user->username : "new member") == BOT_REPLY)
+        bot_send_reply(client, state->config.welcome_channel, reply);
+}
+
 void on_message(struct discord *client, const struct discord_message *event)
 {
     if (!client || !event || !event->author || event->author->bot || !event->content) return;
