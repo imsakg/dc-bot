@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
     if (settings.welcome_channel) {
         discord_add_intents(client, DISCORD_GATEWAY_GUILD_MEMBERS);
         discord_set_on_guild_member_add(client, &on_member_add);
+        discord_set_on_guild_member_remove(client, &on_member_remove);
     }
 
     CCORDcode result = discord_run(client);

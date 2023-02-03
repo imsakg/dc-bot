@@ -17,6 +17,7 @@ struct bot_state {
 };
 void print_usage(void);
 void on_ready(struct discord *client, const struct discord_ready *event);
+void on_member_remove(struct discord *client, const struct discord_guild_member_remove *event);
 void on_member_add(struct discord *client, const struct discord_guild_member *event);
 void on_message(struct discord *client, const struct discord_message *event);
 void bot_send_reply(struct discord *client, uint64_t channel, char *text);

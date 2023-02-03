@@ -67,6 +67,12 @@ int main(void)
     assert(strcmp(last, "Welcome, tester!") == 0);
     member.guild_id = 999; on_member_add(client, &member); assert(sent == before_join + 1);
     member.guild_id = 123;
+    struct discord_guild_member_remove removed = {.guild_id = 123, .user = &user};
+    unsigned before_leave = sent;
+    on_member_remove(client, &removed);
+    assert(sent == before_leave + 1 && strcmp(last, "Goodbye, tester.") == 0);
+    removed.guild_id = 999; on_member_remove(client, &removed);
+    assert(sent == before_leave + 1);
     /* event tests */
     pthread_mutex_destroy(&state.mutex);
     puts("events: all assertions passed");
