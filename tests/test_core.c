@@ -89,6 +89,15 @@ int main(void)
     assert(bot_avatar(42, "a_deadbeef", "0", out, sizeof out) == BOT_REPLY);
     assert(strcmp(out, "https://cdn.discordapp.com/avatars/42/a_deadbeef.gif?size=256") == 0);
     assert(bot_avatar(42, "../../evil", "0", out, sizeof out) == BOT_ERROR);
+    struct bot_limiter limiter = {0};
+    assert(bot_allow(&limiter, 1, 2, 100, 2));
+    assert(!bot_allow(&limiter, 1, 2, 101, 2));
+    assert(bot_allow(&limiter, 1, 2, 102, 2));
+    assert(bot_allow(&limiter, 1, 3, 102, 2));
+    assert(bot_allow(&limiter, 1, 2, 90, 2));
+    assert(!bot_allow(&limiter, 0, 2, 100, 2));
+    for (uint64_t i = 2; i < 100; ++i) assert(bot_allow(&limiter, i, 2, 200 + i, 2));
+    assert(bot_allow(&limiter, 999, 2, 400, 0));
     /* more tests */
     puts("core: all assertions passed");
     return 0;

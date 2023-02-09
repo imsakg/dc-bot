@@ -3,6 +3,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#define BOT_RATE_SLOTS 64
+struct bot_rate_slot { uint64_t user, channel, last; bool used; };
+struct bot_limiter { struct bot_rate_slot slots[BOT_RATE_SLOTS]; };
+bool bot_allow(struct bot_limiter *limiter, uint64_t user, uint64_t channel, uint64_t now, unsigned delay);
 struct bot_input { char name[24]; const char *args; };
 bool bot_parse(const char *message, const char *prefix, struct bot_input *out);
 #define BOT_REPLY_MAX 1900

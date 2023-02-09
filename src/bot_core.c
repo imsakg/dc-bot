@@ -4,6 +4,24 @@
 #include <string.h>
 #include <stdlib.h>
 
+bool bot_allow(struct bot_limiter *limiter, uint64_t user, uint64_t channel, uint64_t now, unsigned delay)
+{
+    size_t candidate = 0;
+    if (!limiter || !user || !channel) return false;
+    if (!delay) return true;
+    for (size_t i = 0; i < BOT_RATE_SLOTS; ++i) {
+        struct bot_rate_slot *slot = &limiter->slots[i];
+        if (slot->used && slot->user == user && slot->channel == channel) {
+            if (now >= slot->last && now - slot->last < delay) return false;
+            slot->last = now;
+            return true;
+        }
+        if (!slot->used || (limiter->slots[candidate].used && slot->last < limiter->slots[candidate].last)) candidate = i;
+    }
+    limiter->slots[candidate] = (struct bot_rate_slot){.user = user, .channel = channel, .last = now, .used = true};
+    return true;
+}
+
 int bot_avatar(uint64_t id, const char *avatar, const char *discriminator, char *out, size_t capacity)
 {
     if (!id) return BOT_ERROR;
