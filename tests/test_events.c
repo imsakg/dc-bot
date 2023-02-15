@@ -28,6 +28,7 @@ int main(void)
     struct discord_user user = {.id = 42, .username = "tester", .discriminator = "0001"};
     struct discord_message event = {.channel_id = 9, .content = "!ping", .author = &user};
     bot_config_defaults(&state.config);
+    state.config.cooldown_seconds = 0;
     assert(pthread_mutex_init(&state.mutex, NULL) == 0);
     on_message(client, NULL);
     event.author = NULL; on_message(client, &event); assert(sent == 0);
@@ -73,6 +74,21 @@ int main(void)
     assert(sent == before_leave + 1 && strcmp(last, "Goodbye, tester.") == 0);
     removed.guild_id = 999; on_member_remove(client, &removed);
     assert(sent == before_leave + 1);
+    unsigned before_guards = sent;
+    event.content = "!ping"; event.webhook_id = 44;
+    on_message(client, &event); assert(sent == before_guards);
+    event.webhook_id = 0; user.System = true;
+    on_message(client, &event); assert(sent == before_guards);
+    user.System = false; event.type = DISCORD_MESSAGE_RECIPIENT_ADD;
+    on_message(client, &event); assert(sent == before_guards);
+    event.type = DISCORD_MESSAGE_DEFAULT;
+    state.config.cooldown_seconds = 2;
+    user.id = 444;
+    on_message(client, &event); assert(sent == before_guards + 1);
+    on_message(client, &event); assert(sent == before_guards + 1);
+    user.id = 445; event.content = "!unknown"; on_message(client, &event);
+    event.content = "!ping"; on_message(client, &event); assert(sent == before_guards + 2);
+    state.config.cooldown_seconds = 0;
     /* event tests */
     pthread_mutex_destroy(&state.mutex);
     puts("events: all assertions passed");

@@ -49,13 +49,17 @@ void on_member_add(struct discord *client, const struct discord_guild_member *ev
 
 void on_message(struct discord *client, const struct discord_message *event)
 {
-    if (!client || !event || !event->author || event->author->bot || !event->content) return;
+    if (!client || !event || !event->author || !event->author->id || !event->channel_id ||
+        event->author->bot || event->author->System || event->webhook_id || !event->content ||
+        (event->type != DISCORD_MESSAGE_DEFAULT && event->type != DISCORD_MESSAGE_REPLY)) return;
     struct bot_state *state = discord_get_data(client);
     struct bot_input input;
     char reply[BOT_REPLY_MAX + 1];
     if (!state) return;
     ++state->messages;
-    if (!bot_parse(event->content, state->config.prefix, &input)) return;
+    if (!bot_parse(event->content, state->config.prefix, &input) || !bot_known_command(input.name)) return;
+    if (!bot_allow(&state->limiter, event->author->id, event->channel_id,
+        (uint64_t)time(NULL), state->config.cooldown_seconds)) return;
     if (strcmp(input.name, "stats") == 0) {
         if (bot_format(reply, sizeof reply, "Messages: %lu | Replies queued: %lu | Ready events: %lu",
             state->messages, state->replies, state->ready_count) == BOT_REPLY)

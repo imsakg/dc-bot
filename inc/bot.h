@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <time.h>
 #include "bot_config.h"
+#include "bot_core.h"
 struct discord;
 struct discord_ready;
 struct discord_message;
@@ -13,6 +14,7 @@ struct bot_state {
     struct bot_config config;
     time_t started;
     unsigned long messages, replies, ready_count, guild_events;
+    struct bot_limiter limiter;
     pthread_mutex_t mutex;
 };
 void print_usage(void);
