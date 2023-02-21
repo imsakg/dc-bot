@@ -49,6 +49,10 @@ build/
 
 # Configuration and log files
 config.json
+bot.conf
+.env
+.env.*
+!*.example
 bot.log
 http.log
 

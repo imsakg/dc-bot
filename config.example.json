@@ -1,0 +1,11 @@
+{
+  "logging": {
+    "level": "info",
+    "quiet": false,
+    "http": {"enable": false}
+  },
+  "discord": {
+    "token": "YOUR-BOT-TOKEN",
+    "default_prefix": {"enable": false, "prefix": "!"}
+  }
+}

@@ -1,0 +1,6 @@
+# Optional non-secret bot settings. Pass with --settings bot.conf.
+prefix=!
+cooldown_seconds=2
+# Enable join/leave notices by setting BOTH IDs, or leave both as 0.
+welcome_guild=0
+welcome_channel=0
