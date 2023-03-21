@@ -38,10 +38,14 @@ build/test_config: tests/test_config.c src/bot_config.c $(CORE) inc/bot_config.h
 build/test_events: tests/test_events.c src/events.c src/bot_config.c $(CORE) $(HEADERS) | build
 	$(CC) $(CPPFLAGS) $(CFLAGS) tests/test_events.c src/events.c src/bot_config.c $(CORE) -o $@
 
-test: build/test_core build/test_config build/test_events
+build/test_properties: tests/test_properties.c $(CORE) $(HEADERS) | build
+	$(CC) -Iinc $(CFLAGS) tests/test_properties.c $(CORE) -o $@
+
+test: build/test_core build/test_config build/test_events build/test_properties
 	./build/test_core
 	./build/test_config
 	./build/test_events
+	./build/test_properties
 
 check: all test
 	python3 tests/test_cli.py
@@ -58,9 +62,13 @@ build/sanitize/test_config: tests/test_config.c src/bot_config.c $(CORE) $(HEADE
 build/sanitize/test_events: tests/test_events.c src/events.c src/bot_config.c $(CORE) $(HEADERS) | build/sanitize
 	$(CC) $(CPPFLAGS) $(SANFLAGS) tests/test_events.c src/events.c src/bot_config.c $(CORE) -o $@
 
-sanitize: build/sanitize/test_core build/sanitize/test_config build/sanitize/test_events
+build/sanitize/test_properties: tests/test_properties.c $(CORE) $(HEADERS) | build/sanitize
+	$(CC) -Iinc $(SANFLAGS) tests/test_properties.c $(CORE) -o $@
+
+sanitize: build/sanitize/test_core build/sanitize/test_config build/sanitize/test_events build/sanitize/test_properties
 	./build/sanitize/test_core
 	./build/sanitize/test_config
 	./build/sanitize/test_events
+	./build/sanitize/test_properties
 
 .PHONY: all run clean test check sanitize

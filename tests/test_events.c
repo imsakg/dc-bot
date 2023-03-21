@@ -1,3 +1,6 @@
+#ifdef NDEBUG
+#error "Tests require assertions; do not define NDEBUG"
+#endif
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
