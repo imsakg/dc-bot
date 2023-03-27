@@ -1,8 +1,8 @@
 SUB = concord
 CC = cc
-CPPFLAGS += -Iinc -I$(SUB)/include -I$(SUB)/core -I$(SUB)/gencodecs
+CPPFLAGS += -Iinc -isystem $(SUB)/include -isystem $(SUB)/core -isystem $(SUB)/gencodecs
 CFLAGS ?= -O2 -g
-CFLAGS += -std=c99 -Wall -Wextra -Wpedantic -pthread
+CFLAGS += -std=c99 -Wall -Wextra -Wpedantic -Werror -pthread
 LDFLAGS += -L$(SUB)/lib
 LDLIBS += -ldiscord -lcurl -pthread
 BOT = build/dc_bot
@@ -49,6 +49,7 @@ test: build/test_core build/test_config build/test_events build/test_properties
 
 check: all test
 	python3 tests/test_cli.py
+	python3 tests/test_headers.py "$(CC)"
 
 build/sanitize:
 	mkdir -p $@
