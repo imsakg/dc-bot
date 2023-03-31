@@ -16,6 +16,20 @@ static char *trim(char *text)
     return text;
 }
 
+/* Read a bounded physical line without hiding bytes behind an embedded NUL. */
+static int config_line(FILE *stream, char *line, size_t capacity)
+{
+    size_t length = 0;
+    int c;
+    while ((c = fgetc(stream)) != EOF) {
+        if (c == 0 || length + 1 >= capacity) return -1;
+        line[length++] = (char)c;
+        if (c == '\n') break;
+    }
+    line[length] = '\0';
+    return length ? 1 : 0;
+}
+
 int bot_config_read(struct bot_config *config, FILE *stream, char *error, size_t capacity)
 {
     char line[256]; unsigned number = 0;
@@ -23,9 +37,9 @@ int bot_config_read(struct bot_config *config, FILE *stream, char *error, size_t
     struct bot_config next = *config;
     unsigned seen = 0;
     if (error && capacity) *error = '\0';
-    while (fgets(line, sizeof line, stream)) {
+    int line_result;
+    while ((line_result = config_line(stream, line, sizeof line)) > 0) {
         ++number;
-        if (!strchr(line, '\n') && !feof(stream)) return config_error(error, capacity, number);
         char *key = trim(line);
         if (!*key || *key == '#') continue;
         char *equals = strchr(key, '=');
@@ -57,7 +71,7 @@ int bot_config_read(struct bot_config *config, FILE *stream, char *error, size_t
             else next.welcome_channel = id;
         } else return config_error(error, capacity, number);
     }
-    if (ferror(stream)) return config_error(error, capacity, number);
+    if (line_result < 0 || ferror(stream)) return config_error(error, capacity, number + 1);
     if ((!next.welcome_guild) != (!next.welcome_channel)) return config_error(error, capacity, number);
     *config = next;
     return 0;

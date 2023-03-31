@@ -5,16 +5,20 @@
 #include <stdio.h>
 #include <string.h>
 #include "bot_config.h"
-static int load_text(struct bot_config *config, const char *text)
+static int load_bytes(struct bot_config *config, const char *text, size_t length)
 {
     char error[80];
     FILE *stream = tmpfile();
     assert(stream);
-    assert(fputs(text, stream) >= 0);
+    assert(fwrite(text, 1, length, stream) == length);
     rewind(stream);
     int result = bot_config_read(config, stream, error, sizeof error);
     fclose(stream);
     return result;
+}
+static int load_text(struct bot_config *config, const char *text)
+{
+    return load_bytes(config, text, strlen(text));
 }
 int main(void)
 {
@@ -42,6 +46,13 @@ int main(void)
     assert(load_text(&config, "cooldown_seconds=3601\n") != 0);
     assert(load_text(&config, "cooldown_seconds=-2\n") != 0);
     assert(load_text(&config, "cooldown_seconds=1\ncooldown_seconds=2\n") != 0);
+    const char binary[] = "prefix=?\0unknown=yes";
+    const char binary_newline[] = "prefix=?\0unknown=yes\n";
+    struct bot_config before = config;
+    assert(load_bytes(&config, binary, sizeof binary - 1) != 0);
+    assert(memcmp(&config, &before, sizeof config) == 0);
+    assert(load_bytes(&config, binary_newline, sizeof binary_newline - 1) != 0);
+    assert(memcmp(&config, &before, sizeof config) == 0);
     /* config tests */
     puts("config: all assertions passed");
     return 0;
