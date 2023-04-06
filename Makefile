@@ -14,6 +14,7 @@ SANFLAGS = -O1 -g -std=c99 -Wall -Wextra -Wpedantic -pthread -fsanitize=address,
 all: $(BOT)
 
 $(SUB)/lib/libdiscord.a:
+	mkdir -p $(SUB)/lib
 	$(MAKE) -C $(SUB) CC="$(CC)"
 
 $(BOT): $(SOURCES) $(HEADERS) $(SUB)/lib/libdiscord.a | build
