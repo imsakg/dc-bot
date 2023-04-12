@@ -1,0 +1,33 @@
+name: C build and offline checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential clang libcurl4-openssl-dev python3
+      - name: Build and check without credentials
+        run: make CC=${{ matrix.compiler }} check
+      - name: Address and undefined behavior sanitizers
+        run: make CC=${{ matrix.compiler }} sanitize
+  container:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - run: docker build -t dc-bot:ci .
+      - run: docker run --rm --network none --read-only --cap-drop ALL dc-bot:ci --check-config --settings /app/bot.conf
