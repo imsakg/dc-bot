@@ -42,11 +42,15 @@ build/test_events: tests/test_events.c src/events.c src/bot_config.c $(CORE) $(H
 build/test_properties: tests/test_properties.c $(CORE) $(HEADERS) | build
 	$(CC) -Iinc $(CFLAGS) tests/test_properties.c $(CORE) -o $@
 
-test: build/test_core build/test_config build/test_events build/test_properties
+build/test_codec: tests/test_codec.c $(SUB)/lib/libdiscord.a | build
+	$(CC) $(CPPFLAGS) $(CFLAGS) tests/test_codec.c $(LDFLAGS) $(LDLIBS) -o $@
+
+test: build/test_core build/test_config build/test_events build/test_properties build/test_codec
 	./build/test_core
 	./build/test_config
 	./build/test_events
 	./build/test_properties
+	./build/test_codec
 
 check: all test
 	python3 tests/test_cli.py
@@ -67,10 +71,14 @@ build/sanitize/test_events: tests/test_events.c src/events.c src/bot_config.c $(
 build/sanitize/test_properties: tests/test_properties.c $(CORE) $(HEADERS) | build/sanitize
 	$(CC) -Iinc $(SANFLAGS) tests/test_properties.c $(CORE) -o $@
 
-sanitize: build/sanitize/test_core build/sanitize/test_config build/sanitize/test_events build/sanitize/test_properties
+build/sanitize/test_codec: tests/test_codec.c $(SUB)/lib/libdiscord.a | build/sanitize
+	$(CC) $(CPPFLAGS) $(SANFLAGS) tests/test_codec.c $(LDFLAGS) $(LDLIBS) -o $@
+
+sanitize: build/sanitize/test_core build/sanitize/test_config build/sanitize/test_events build/sanitize/test_properties build/sanitize/test_codec
 	./build/sanitize/test_core
 	./build/sanitize/test_config
 	./build/sanitize/test_events
 	./build/sanitize/test_properties
+	./build/sanitize/test_codec
 
 .PHONY: all run clean test check sanitize

@@ -92,6 +92,15 @@ int main(void)
     user.id = 445; event.content = "!unknown"; on_message(client, &event);
     event.content = "!ping"; on_message(client, &event); assert(sent == before_guards + 2);
     state.config.cooldown_seconds = 0;
+    unsigned before_empty = sent;
+    bot_send_reply(client, 0, "ignored");
+    bot_send_reply(client, 9, "");
+    bot_send_reply(client, 9, NULL);
+    bot_send_reply(NULL, 9, "ignored");
+    assert(sent == before_empty);
+    event.content = "!echo @everyone <@42> <@&99> %s";
+    on_message(client, &event);
+    assert(strcmp(last, "@everyone <@42> <@&99> %s") == 0);
     /* event tests */
     pthread_mutex_destroy(&state.mutex);
     puts("events: all assertions passed");
