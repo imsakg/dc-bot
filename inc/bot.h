@@ -12,8 +12,9 @@ struct discord_guild_member;
 struct discord_guild_member_remove;
 struct bot_state {
     struct bot_config config;
-    time_t started;
-    unsigned long messages, replies, ready_count, guild_events;
+    time_t started; /* immutable after startup, like config */
+    unsigned long messages, replies, ready_count;
+    uint32_t random_state;
     struct bot_limiter limiter;
     pthread_mutex_t mutex;
 };

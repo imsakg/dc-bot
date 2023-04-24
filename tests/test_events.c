@@ -25,6 +25,13 @@ CCORDcode discord_create_message(struct discord *client, u64snowflake channel,
     ++sent;
     return send_result;
 }
+struct thread_input { struct discord *client; struct discord_message event; };
+static void *count_messages(void *arg)
+{
+    struct thread_input *input = arg;
+    for (unsigned i = 0; i < 50000; ++i) on_message(input->client, &input->event);
+    return NULL;
+}
 int main(void)
 {
     struct discord *client = (struct discord *)&state;
@@ -101,6 +108,13 @@ int main(void)
     event.content = "!echo @everyone <@42> <@&99> %s";
     on_message(client, &event);
     assert(strcmp(last, "@everyone <@42> <@&99> %s") == 0);
+    struct thread_input input = {.client = client, .event = event};
+    input.event.content = "ordinary non-command message";
+    pthread_t threads[4];
+    unsigned long before_threads = state.messages;
+    for (unsigned i = 0; i < 4; ++i) assert(pthread_create(&threads[i], NULL, count_messages, &input) == 0);
+    for (unsigned i = 0; i < 4; ++i) assert(pthread_join(threads[i], NULL) == 0);
+    assert(state.messages == before_threads + 200000UL);
     /* event tests */
     pthread_mutex_destroy(&state.mutex);
     puts("events: all assertions passed");

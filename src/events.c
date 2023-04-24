@@ -2,7 +2,6 @@
 #include "bot.h"
 #include "bot_core.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 void bot_send_reply(struct discord *client, uint64_t channel, char *text)
@@ -15,7 +14,11 @@ void bot_send_reply(struct discord *client, uint64_t channel, char *text)
         fputs("Unable to queue a Discord reply.\n", stderr);
     } else {
         struct bot_state *state = discord_get_data(client);
-        if (state) ++state->replies;
+        if (state) {
+            pthread_mutex_lock(&state->mutex);
+            ++state->replies;
+            pthread_mutex_unlock(&state->mutex);
+        }
     }
 }
 
@@ -23,7 +26,11 @@ void on_ready(struct discord *client, const struct discord_ready *event)
 {
     if (!client || !event || !event->user) return;
     struct bot_state *state = discord_get_data(client);
-    if (state) ++state->ready_count;
+    if (state) {
+        pthread_mutex_lock(&state->mutex);
+        ++state->ready_count;
+        pthread_mutex_unlock(&state->mutex);
+    }
     fprintf(stderr, "dc-bot connected as %s\n", event->user->username ? event->user->username : "unknown");
 }
 
@@ -56,13 +63,21 @@ void on_message(struct discord *client, const struct discord_message *event)
     struct bot_input input;
     char reply[BOT_REPLY_MAX + 1];
     if (!state) return;
+    pthread_mutex_lock(&state->mutex);
     ++state->messages;
+    pthread_mutex_unlock(&state->mutex);
     if (!bot_parse(event->content, state->config.prefix, &input) || !bot_known_command(input.name)) return;
-    if (!bot_allow(&state->limiter, event->author->id, event->channel_id,
-        (uint64_t)time(NULL), state->config.cooldown_seconds)) return;
+    pthread_mutex_lock(&state->mutex);
+    bool allowed = bot_allow(&state->limiter, event->author->id, event->channel_id,
+        (uint64_t)time(NULL), state->config.cooldown_seconds);
+    state->random_state = state->random_state * UINT32_C(1664525) + UINT32_C(1013904223);
+    unsigned random = state->random_state;
+    unsigned long messages = state->messages, replies = state->replies, ready = state->ready_count;
+    pthread_mutex_unlock(&state->mutex);
+    if (!allowed) return;
     if (strcmp(input.name, "stats") == 0) {
         if (bot_format(reply, sizeof reply, "Messages: %lu | Replies queued: %lu | Ready events: %lu",
-            state->messages, state->replies, state->ready_count) == BOT_REPLY)
+            messages, replies, ready) == BOT_REPLY)
             bot_send_reply(client, event->channel_id, reply);
         return;
     }
@@ -93,6 +108,6 @@ void on_message(struct discord *client, const struct discord_message *event)
         if (bot_uptime(elapsed, reply, sizeof reply) == BOT_REPLY) bot_send_reply(client, event->channel_id, reply);
         return;
     }
-    if (bot_respond(input.name, input.args, (unsigned)rand(), reply, sizeof reply) == BOT_REPLY)
+    if (bot_respond(input.name, input.args, random, reply, sizeof reply) == BOT_REPLY)
         bot_send_reply(client, event->channel_id, reply);
 }

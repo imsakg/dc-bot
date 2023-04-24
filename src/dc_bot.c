@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     if (pthread_mutex_init(&state.mutex, NULL) != 0) {
         discord_cleanup(client); ccord_global_cleanup(); return EXIT_FAILURE;
     }
-    srand((unsigned)state.started);
+    state.random_state = (uint32_t)state.started;
     discord_set_data(client, &state);
     discord_add_intents(client, DISCORD_GATEWAY_GUILDS | DISCORD_GATEWAY_GUILD_MESSAGES |
         DISCORD_GATEWAY_DIRECT_MESSAGES | DISCORD_GATEWAY_MESSAGE_CONTENT);
